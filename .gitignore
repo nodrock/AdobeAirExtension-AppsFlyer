@@ -36,11 +36,9 @@ Thumbs.db
 classes
 out
 
-
-google-play-services_lib
-sample-project/ext
-cer
-/sample-project/extentions
-package-target
-/android/src/com/appsflyer/adobeair/lib
-/sample-project/build/*.properties
+build.config
+bin
+.gradle
+build/android-profile
+.idea/libraries
+build/intermediates/lint-cache

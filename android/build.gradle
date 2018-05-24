@@ -1,0 +1,97 @@
+apply plugin: 'com.android.library'
+
+repositories {
+    jcenter()
+    maven {
+        url "https://maven.google.com"
+    }
+}
+
+project.group = 'com.appsflyer.adobeair'
+
+dependencies {
+    compile files('libs/FlashRuntimeExtensions.jar')
+    compile files('libs/AF-Android-SDK.jar')
+    compile files('libs/installreferrer-1.0.jar')
+    compile files('libs/json-simple-1.1.1.jar')
+
+    compile 'com.android.support:support-v4:25.4.0'
+    // compile 'com.android.support:appcompat-v7:25.4.0'
+    compile 'com.google.android.gms:play-services-base:11.4.2'
+    // compile 'com.google.android.gms:play-services-basement:11.4.2'
+    // compile 'com.google.android.gms:play-services-appinvite:11.4.2'
+    // compile 'com.google.android.gms:play-services-tasks:11.4.2'
+    compile 'com.google.android.gms:play-services-gcm:11.4.2'
+    // compile 'com.google.android.gms:play-services-games:11.4.2'
+    compile 'com.google.android.gms:play-services-auth:11.4.2'
+// compile 'com.google.android.gms:play-services-drive:11.4.2'
+    compile 'com.google.android.gms:play-services-identity:11.4.2'
+//    compile 'com.google.android.gms:play-services-ads:11.4.2'
+//    compile 'com.google.android.gms:play-services-plus:11.4.2'
+
+    compile 'com.google.firebase:firebase-core:11.4.2'
+//    compile 'com.google.firebase:firebase-common:11.4.2'
+//    compile 'com.google.firebase:firebase-iid:11.4.2'
+    compile 'com.google.firebase:firebase-messaging:11.4.2'
+//    compile 'com.google.firebase:firebase-invites:11.4.2'
+}
+
+android {
+    compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
+    buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
+
+    defaultConfig {
+        minSdkVersion Integer.parseInt(project.ANDROID_BUILD_MIN_SDK_VERSION)
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            res.srcDirs = ['res']
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+task androidJavadocs(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    // JDK 1.8 is more strict then 1.7. Have JDK 1.8 behave like 1.7 for javadoc generation
+    if (org.gradle.internal.jvm.Jvm.current().getJavaVersion() == JavaVersion.VERSION_1_8) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}
+
+task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
+    classifier = 'javadoc'
+    from androidJavadocs.destinationDir
+}
+
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.sourceFiles
+}
+
+artifacts {
+    archives androidSourcesJar
+    archives androidJavadocsJar
+}
+
+afterEvaluate {
+    androidJavadocs.classpath += project.android.libraryVariants.toList().first().javaCompile.classpath
+}
+
+task copyDeps(type: Copy) {
+    from configurations.compile
+    into 'build/lib'
+}
